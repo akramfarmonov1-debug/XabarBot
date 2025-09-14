@@ -1,6 +1,7 @@
 import os
 import google.generativeai as genai
 from flask import Flask, render_template, session, redirect, url_for, flash
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
@@ -13,8 +14,17 @@ from models.telegram_bot import TelegramBot
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', os.urandom(24).hex())
+
+# SESSION_SECRET muhim bo'lib, har safar restart qilganda o'zgarib ketmasligi kerak
+session_secret = os.environ.get('SESSION_SECRET')
+if not session_secret:
+    raise ValueError("SESSION_SECRET environment variable is required for security!")
+
+app.config['SECRET_KEY'] = session_secret
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB maksimal fayl hajmi
+
+# CSRF himoyasini yoqish
+csrf = CSRFProtect(app)
 
 # Google Gemini API konfiguratsiyasi
 gemini_api_key = os.getenv("GEMINI_API_KEY")
@@ -51,4 +61,5 @@ def too_large(e):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
