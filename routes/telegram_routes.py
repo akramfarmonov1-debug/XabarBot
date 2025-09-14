@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 
 telegram_bp = Blueprint('telegram', __name__)
 
+@telegram_bp.route('/dashboard')
+def dashboard():
+    """Telegram dashboard - redirects to manage bots"""
+    return redirect(url_for('telegram.manage_bots'))
+
 @telegram_bp.route('/bots', methods=['GET', 'POST'])
 def manage_bots():
     # Foydalanuvchi tizimga kirganligini tekshirish

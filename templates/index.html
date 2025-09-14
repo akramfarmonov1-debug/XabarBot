@@ -1,86 +1,132 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XabarBot.UZ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/widget.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .welcome-container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .user-info {
-            background-color: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Welcome to XabarBot.UZ</h1>
-        {% if user_name %}
-            <div class="user-info">
-                <strong>Salom, {{ user_name }}!</strong><br>
-                Email: {{ user_email }}
-            </div>
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Chiqish</a>
-        {% endif %}
-    </div>
-    
-    <div class="welcome-container">
-        <h2>AI Chatbot Platformasiga xush kelibsiz!</h2>
-        <p>Bu platformada siz AI yordamchisi bilan suhbatlashishingiz mumkin.</p>
-        {% if user_name %}
-            <p>Sizning 3 kunlik bepul sinov muddatingiz boshlanadi.</p>
-            
-            <div style="margin-top: 30px;">
-                <h3>Mavjud xizmatlar:</h3>
-                <div style="margin-top: 15px;">
-                    <a href="{{ url_for('chat.chat') }}" style="background-color: #28a745; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">🤖 AI Chat</a>
-                    <a href="{{ url_for('kb.upload_kb') }}" style="background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">📁 Fayl yuklash</a>
-                    <a href="{{ url_for('telegram.manage_bots') }}" style="background-color: #6f42c1; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">🤖 Telegram Bot</a>
+{% extends "base.html" %}
+
+{% block title %}XabarBot.UZ - AI Chatbot Platformasi{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+    {% if current_user.is_authenticated %}
+        <!-- Dashboard for logged in users -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h1 class="h3 mb-3">Salom, {{ current_user.full_name }}! 👋</h1>
+                        
+                        {% if current_user.plan == 'free' %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Bepul sinov davri:</strong> 
+                                {% if current_user.trial_ends_at %}
+                                    {{ current_user.trial_ends_at.strftime('%d.%m.%Y') }} gacha
+                                {% else %}
+                                    3 kunlik bepul sinov
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row g-4 mt-3">
+                            <!-- AI Chat -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-chat-dots-fill text-success mb-3" style="font-size: 3rem;"></i>
+                                        <h5 class="card-title">AI Chat</h5>
+                                        <p class="card-text">Sun'iy intellekt bilan suhbatlashing</p>
+                                        <a href="{{ url_for('chat.index') }}" class="btn btn-success">
+                                            <i class="bi bi-chat"></i> Chatni boshlash
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Knowledge Base -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-file-earmark-text-fill text-primary mb-3" style="font-size: 3rem;"></i>
+                                        <h5 class="card-title">Bilim Bazasi</h5>
+                                        <p class="card-text">PDF, DOCX, CSV fayllarni yuklang</p>
+                                        <a href="{{ url_for('kb.upload') }}" class="btn btn-primary">
+                                            <i class="bi bi-upload"></i> Fayl yuklash
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Telegram Bot -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-telegram text-info mb-3" style="font-size: 3rem;"></i>
+                                        <h5 class="card-title">Telegram Bot</h5>
+                                        <p class="card-text">Telegram bot yarating va boshqaring</p>
+                                        <a href="{{ url_for('telegram.dashboard') }}" class="btn btn-info">
+                                            <i class="bi bi-telegram"></i> Bot sozlash
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p style="margin-top: 15px; font-size: 14px; color: #666;">
-                    AI yordamchisi bilan suhbatlashing va PDF, DOCX, CSV yoki TXT fayllarini yuklab matn ko'rinishida saqlang.
-                </p>
             </div>
-        {% endif %}
-    </div>
-    
-    <script src="{{ url_for('static', filename='js/chat-widget.js') }}"></script>
-</body>
-</html>
+        </div>
+    {% else %}
+        <!-- Landing page for visitors -->
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    AI Chatbot Platformasi
+                    <span class="text-primary">XabarBot.UZ</span>
+                </h1>
+                <p class="lead mb-4">
+                    Sun'iy intellekt yordamida o'z biznesingiz uchun aqlli chatbot yarating. 
+                    PDF, DOCX fayllarni yuklang va AI sizning ma'lumotlaringiz asosida javob bersin.
+                </p>
+                
+                <div class="d-flex gap-3 mb-4">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-plus"></i> Bepul boshlash
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Kirish
+                    </a>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>3 kun bepul sinov</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Telegram bot</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Fayl yuklash</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>24/7 qo'llab-quvvatlash</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="bi bi-robot text-primary" style="font-size: 12rem; opacity: 0.8;"></i>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

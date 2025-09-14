@@ -10,7 +10,7 @@ def get_current_user_id():
     """Joriy foydalanuvchi ID sini olish"""
     return session.get('user_id')
 
-@contact_bp.route('/contact/webchat', methods=['POST'])
+@contact_bp.route('/webchat', methods=['POST'])
 def webchat():
     """Webchat orqali xabar yuborish"""
     try:
@@ -34,7 +34,7 @@ def webchat():
     except Exception as e:
         return jsonify({'success': False, 'error': 'Xatolik yuz berdi'}), 500
 
-@contact_bp.route('/contact/telegram', methods=['POST'])
+@contact_bp.route('/telegram', methods=['POST'])
 def telegram():
     """Telegram bot orqali xabar qabul qilish"""
     try:
@@ -62,7 +62,7 @@ def telegram():
     except Exception as e:
         return jsonify({'success': False, 'error': 'Xatolik yuz berdi'}), 500
 
-@contact_bp.route('/contact/phone', methods=['POST'])
+@contact_bp.route('/phone', methods=['POST'])
 def phone():
     """Telefon qo'ng'iroq so'rovi (mock)"""
     try:
