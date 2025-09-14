@@ -175,6 +175,7 @@
             
             <h3>Bot Sozlamalarini Yangilash</h3>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="add_bot">
                 <div class="form-group">
                     <label for="bot_token">Bot Tokeni:</label>
@@ -193,12 +194,14 @@
             </form>
             
             <form method="POST" style="margin-top: 20px;" onsubmit="return confirm('Rostdan ham botni o\'chirmoqchimisiz?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="delete_bot">
                 <button type="submit" class="btn btn-danger">Botni O'chirish</button>
             </form>
         {% else %}
             <h2>Telegram Bot Qo'shish</h2>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="add_bot">
                 <div class="form-group">
                     <label for="bot_token">Bot Tokeni:</label>
