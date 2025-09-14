@@ -51,6 +51,13 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## 2025-09-14: Template Routing Errors Fixed
+- **Critical Fix**: Resolved template routing errors causing AI Chat, Knowledge Base, and Telegram Bot pages to crash
+- **Issue**: All templates used `url_for('index')` but actual route function was named `home()`
+- **Templates Fixed**: chat.html, upload_kb.html, bots.html, admin templates (contacts.html, dashboard.html)
+- **Result**: All three main platform functions now work correctly without BuildError exceptions
+- **Testing**: Verified all pages properly redirect for authentication and no longer crash
+
 ## 2025-09-14: Complete XabarBot.UZ Platform Implementation
 - **Core Platform Completed**: Built comprehensive SaaS AI chatbot platform
 - **Database Schema**: Updated PostgreSQL with SQLAlchemy models for users, knowledge base, contact logs, and Telegram bots

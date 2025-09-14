@@ -9,11 +9,11 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">XabarBot.UZ</a>
+            <a class="navbar-brand" href="{{ url_for('home') }}">XabarBot.UZ</a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Foydalanuvchilar</a>
                 <a class="nav-link active" href="{{ url_for('admin.contacts') }}">Kontaktlar</a>
-                <a class="nav-link" href="{{ url_for('index') }}">Asosiy sahifa</a>
+                <a class="nav-link" href="{{ url_for('home') }}">Asosiy sahifa</a>
                 <a class="nav-link" href="{{ url_for('auth.logout') }}">Chiqish</a>
             </div>
         </div>
