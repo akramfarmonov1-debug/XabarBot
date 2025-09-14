@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_babel import _
 from models import db
@@ -44,7 +44,14 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash(_('Ro\'yxatdan o\'tish muvaffaqiyatli!'), 'success')
+        # Send welcome email
+        try:
+            from utils.marketing_email import send_welcome_email
+            send_welcome_email(user)
+        except Exception as e:
+            current_app.logger.error(f"Failed to send welcome email: {str(e)}")
+        
+        flash(_('Ro\'yxatdan o\'tish muvaffaqiyatli! 3 kunlik bepul sinov boshlandi.'), 'success')
         return redirect(url_for('auth.login'))
     
     return render_template('register.html')

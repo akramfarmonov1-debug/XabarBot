@@ -6,8 +6,11 @@ from flask_babel import Babel, _, get_locale
 from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail
 from werkzeug.security import generate_password_hash
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import google.generativeai as genai
 from dotenv import load_dotenv
+import atexit
 
 # Load environment variables
 load_dotenv()
@@ -144,6 +147,35 @@ with app.app_context():
             )
             db.session.add(admin_user)
             db.session.commit()
+
+# Email scheduler setup
+def setup_email_scheduler():
+    """Setup automated email scheduler"""
+    try:
+        scheduler = BackgroundScheduler()
+        
+        # Send trial reminder emails every 12 hours
+        from utils.marketing_email import send_trial_reminders_batch
+        scheduler.add_job(
+            func=send_trial_reminders_batch,
+            trigger=IntervalTrigger(hours=12),
+            id='trial_reminders',
+            name='Send trial reminder emails',
+            replace_existing=True
+        )
+        
+        scheduler.start()
+        app.logger.info("Email scheduler started successfully")
+        
+        # Shutdown scheduler on app exit
+        atexit.register(lambda: scheduler.shutdown())
+        
+    except Exception as e:
+        app.logger.error(f"Failed to start email scheduler: {str(e)}")
+
+# Initialize scheduler
+with app.app_context():
+    setup_email_scheduler()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
