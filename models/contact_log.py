@@ -22,5 +22,37 @@ class ContactLog(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
     
+    def save(self):
+        """Ma'lumotlar bazasiga saqlash"""
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def delete(self):
+        """Ma'lumotlar bazasidan o'chirish"""
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def update(self, **kwargs):
+        """Ma'lumotlarni yangilash"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
     def __repr__(self):
         return f'<ContactLog {self.channel}: {self.message[:50]}>'

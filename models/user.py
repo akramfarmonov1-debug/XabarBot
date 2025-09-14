@@ -87,5 +87,37 @@ class User(UserMixin, db.Model):
         """Check if user has any active subscription (trial or paid)"""
         return self.is_trial_active() or self.is_plan_active()
     
+    def save(self):
+        """Ma'lumotlar bazasiga saqlash"""
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def delete(self):
+        """Ma'lumotlar bazasidan o'chirish"""
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def update(self, **kwargs):
+        """Ma'lumotlarni yangilash"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
     def __repr__(self):
         return f'<User {self.email}>'

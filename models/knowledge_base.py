@@ -28,3 +28,35 @@ class KnowledgeBase(db.Model):
     def find_by_user_id(cls, user_id):
         """Foydalanuvchi ID bo'yicha bilim bazasi ma'lumotlarini topish"""
         return cls.query.filter_by(user_id=user_id, is_active=True).all()
+    
+    def save(self):
+        """Ma'lumotlar bazasiga saqlash"""
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def delete(self):
+        """Ma'lumotlar bazasidan o'chirish"""
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def update(self, **kwargs):
+        """Ma'lumotlarni yangilash"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
