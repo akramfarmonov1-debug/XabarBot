@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_login import login_required, current_user
 from models.telegram_bot import TelegramBot
 from models.user import User
 from utils.messaging.telegram import send_message_to_telegram, get_bot_info, set_webhook, delete_webhook, generate_webhook_secret, verify_webhook_signature
@@ -12,18 +13,16 @@ logger = logging.getLogger(__name__)
 telegram_bp = Blueprint('telegram', __name__)
 
 @telegram_bp.route('/dashboard')
+@login_required
 def dashboard():
     """Telegram dashboard - redirects to manage bots"""
     return redirect(url_for('telegram.manage_bots'))
 
 @telegram_bp.route('/bots', methods=['GET', 'POST'])
+@login_required
 def manage_bots():
-    # Foydalanuvchi tizimga kirganligini tekshirish
-    if 'user_id' not in session:
-        flash('Bot sozlamalari uchun tizimga kiring', 'error')
-        return redirect(url_for('auth.login'))
-    
-    user_id = session['user_id']
+    # Flask-Login bilan foydalanuvchi ma'lumotlarini olish
+    user_id = current_user.id
     
     if request.method == 'POST':
         action = request.form.get('action')
