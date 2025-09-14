@@ -1,6 +1,6 @@
 Flask==3.0.3
 python-dotenv==1.0.0
-bcrypt
-Flask-WTF
-psycopg2-binary
-WTForms
+bcrypt==4.3.0
+Flask-WTF==1.2.2
+psycopg2-binary==2.9.10
+WTForms==3.2.1

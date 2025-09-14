@@ -1,9 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XabarBot.UZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .welcome-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to XabarBot.UZ</h1>
+    <div class="header">
+        <h1>Welcome to XabarBot.UZ</h1>
+        {% if user_name %}
+            <div class="user-info">
+                <strong>Salom, {{ user_name }}!</strong><br>
+                Email: {{ user_email }}
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Chiqish</a>
+        {% endif %}
+    </div>
+    
+    <div class="welcome-container">
+        <h2>AI Chatbot Platformasiga xush kelibsiz!</h2>
+        <p>Bu platformada siz AI yordamchisi bilan suhbatlashishingiz mumkin.</p>
+        {% if user_name %}
+            <p>Sizning 3 kunlik bepul sinov muddatingiz boshlanadi.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
