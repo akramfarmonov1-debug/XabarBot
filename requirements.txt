@@ -4,3 +4,6 @@ bcrypt==4.3.0
 Flask-WTF==1.2.2
 psycopg2-binary==2.9.10
 WTForms==3.2.1
+PyPDF2==3.0.1
+python-docx==1.1.2
+pandas==2.2.3
