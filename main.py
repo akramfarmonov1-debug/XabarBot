@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, flash
 from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
@@ -28,6 +28,14 @@ def index():
                              user_email=session.get('user_email'))
     else:
         return redirect(url_for('auth.login'))
+
+@app.errorhandler(413)
+def too_large(e):
+    flash('Fayl hajmi 10MB dan oshmasin', 'error')
+    if 'user_id' in session:
+        return render_template('upload_kb.html'), 413
+    else:
+        return redirect(url_for('auth.login')), 413
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

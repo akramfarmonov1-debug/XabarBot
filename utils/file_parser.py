@@ -9,22 +9,18 @@ def parse_file_content(file_path, file_name):
     Faylni matn ko'rinishiga o'tkazish
     PDF, DOCX, CSV, TXT fayllarini qo'llab-quvvatlaydi
     """
-    try:
-        file_extension = os.path.splitext(file_name)[1].lower()
-        
-        if file_extension == '.pdf':
-            return parse_pdf(file_path)
-        elif file_extension == '.docx':
-            return parse_docx(file_path)
-        elif file_extension == '.csv':
-            return parse_csv(file_path)
-        elif file_extension == '.txt':
-            return parse_txt(file_path)
-        else:
-            return "Qo'llab-quvvatlanmaydigan fayl turi"
+    file_extension = os.path.splitext(file_name)[1].lower()
     
-    except Exception as e:
-        return f"Faylni o'qishda xatolik: {str(e)}"
+    if file_extension == '.pdf':
+        return parse_pdf(file_path)
+    elif file_extension == '.docx':
+        return parse_docx(file_path)
+    elif file_extension == '.csv':
+        return parse_csv(file_path)
+    elif file_extension == '.txt':
+        return parse_txt(file_path)
+    else:
+        raise Exception("Qo'llab-quvvatlanmaydigan fayl turi")
 
 def parse_pdf(file_path):
     """PDF faylini matnga aylantiradigan funksiya"""
@@ -34,14 +30,17 @@ def parse_pdf(file_path):
         
         for page_num in range(len(reader.pages)):
             page = reader.pages[page_num]
-            text += page.extract_text()
+            page_text = page.extract_text()
+            text += (page_text or "")
         
         # Matnni tozalash
         text = clean_text(text)
+        if not text.strip():
+            raise Exception("PDF faylidan matn ajratib olib bo'lmadi (ehtimol rasmli fayl)")
         return text
     
     except Exception as e:
-        return f"PDF faylini o'qishda xatolik: {str(e)}"
+        raise Exception(f"PDF faylini o'qishda xatolik: {str(e)}")
 
 def parse_docx(file_path):
     """DOCX faylini matnga aylantiradigan funksiya"""
@@ -64,7 +63,7 @@ def parse_docx(file_path):
         return text
     
     except Exception as e:
-        return f"DOCX faylini o'qishda xatolik: {str(e)}"
+        raise Exception(f"DOCX faylini o'qishda xatolik: {str(e)}")
 
 def parse_csv(file_path):
     """CSV faylini matnga aylantiradigan funksiya"""
@@ -88,7 +87,7 @@ def parse_csv(file_path):
         return text
     
     except Exception as e:
-        return f"CSV faylini o'qishda xatolik: {str(e)}"
+        raise Exception(f"CSV faylini o'qishda xatolik: {str(e)}")
 
 def parse_txt(file_path):
     """TXT faylini o'qiydigan funksiya"""
@@ -112,10 +111,10 @@ def parse_txt(file_path):
                     text = file.read()
                 return clean_text(text)
             except Exception as e:
-                return f"TXT faylini o'qishda xatolik: {str(e)}"
+                raise Exception(f"TXT faylini o'qishda xatolik: {str(e)}")
     
     except Exception as e:
-        return f"TXT faylini o'qishda xatolik: {str(e)}"
+        raise Exception(f"TXT faylini o'qishda xatolik: {str(e)}")
 
 def clean_text(text):
     """Matnni tozalash va formatlash"""

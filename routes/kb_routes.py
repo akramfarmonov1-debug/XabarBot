@@ -54,7 +54,12 @@ def upload_kb():
                 return render_template('upload_kb.html')
             
             # Faylni matnga aylantiradigan
-            file_content = parse_file_content(file_path, filename)
+            try:
+                file_content = parse_file_content(file_path, filename)
+            except Exception as e:
+                os.remove(file_path)  # Faylni o'chirish
+                flash(f'Faylni tahlil qilishda xatolik: {str(e)}', 'error')
+                return render_template('upload_kb.html')
             
             # Qo'shimcha matn qo'shish
             if additional_text:
