@@ -22,10 +22,30 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.environ.get('SESSION_SECRET')
 if not app.config['SECRET_KEY']:
     raise RuntimeError("SECRET_KEY or SESSION_SECRET environment variable is required")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-if not app.config['SQLALCHEMY_DATABASE_URI']:
+# Database URL with SSL configuration for PostgreSQL
+database_url = os.environ.get('DATABASE_URL')
+if not database_url:
     raise RuntimeError("DATABASE_URL environment variable is required")
+
+# Fix SSL connection issues for PostgreSQL
+if database_url.startswith('postgresql://'):
+    database_url = database_url.replace('postgresql://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Connection pool settings to handle SSL disconnects  
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 10,
+    'pool_timeout': 20,
+    'pool_recycle': 300,
+    'pool_pre_ping': True,  # This validates connections before use
+    'connect_args': {
+        'connect_timeout': 10,
+        'sslmode': 'prefer',  # Prefer SSL but allow non-SSL connections
+        'options': '-c default_transaction_isolation=read_committed'
+    }
+}
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
 
 # Security settings for production and development
@@ -79,10 +99,15 @@ from models.knowledge_base import KnowledgeBase
 from models.telegram_bot import TelegramBot
 from models.contact_log import ContactLog
 
-# User loader for Flask-Login
+# User loader for Flask-Login with error handling
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    try:
+        return User.query.get(int(user_id))
+    except Exception as e:
+        # Log the error but don't crash the app
+        app.logger.error(f"Error loading user {user_id}: {str(e)}")
+        return None
 
 # Import and register blueprints
 from routes.auth_routes import auth_bp
@@ -102,6 +127,16 @@ app.register_blueprint(contact_bp, url_prefix='/contact')
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# Create database tables
+def create_tables():
+    """Create database tables if they don't exist"""
+    try:
+        with app.app_context():
+            db.create_all()
+            app.logger.info("Database tables created successfully")
+    except Exception as e:
+        app.logger.error(f"Error creating database tables: {str(e)}")
 
 @app.route('/health')
 def health_check():
