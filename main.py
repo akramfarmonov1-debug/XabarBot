@@ -11,7 +11,7 @@ from models.knowledge_base import KnowledgeBase
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'your_super_secret_key_1234567890!')
+app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', os.urandom(24).hex())
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB maksimal fayl hajmi
 
 # Google Gemini API konfiguratsiyasi
@@ -46,4 +46,5 @@ def too_large(e):
         return redirect(url_for('auth.login')), 413
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

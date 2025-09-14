@@ -18,3 +18,4 @@ PyPDF2
 python-docx
 python-dotenv
 WTForms
+gunicorn
