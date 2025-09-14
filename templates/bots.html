@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bot Sozlamalari - XabarBot.UZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .bot-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        .bot-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .webhook-url {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        .navigation {
+            margin-bottom: 20px;
+        }
+        .navigation a {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+        .instructions {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .instructions ol {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Telegram Bot Sozlamalari</h1>
+        <div class="navigation">
+            <a href="{{ url_for('index') }}">Bosh sahifa</a>
+            <a href="{{ url_for('chat.chat') }}">Chat</a>
+            <a href="{{ url_for('kb.upload_kb') }}">Bilim bazasi</a>
+            <a href="{{ url_for('auth.logout') }}">Chiqish</a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'error' if category == 'error' else category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if not user_bot %}
+    <div class="instructions">
+        <h3>Telegram Bot Qo'shish</h3>
+        <ol>
+            <li><a href="https://t.me/BotFather" target="_blank">@BotFather</a> ga murojaat qiling</li>
+            <li><code>/newbot</code> komandasini yuboring</li>
+            <li>Bot nomini kiriting</li>
+            <li>Bot username ini kiriting (bot bilan tugashi kerak)</li>
+            <li>Olingan tokenni quyidagi formaga kiriting</li>
+        </ol>
+    </div>
+    {% endif %}
+
+    <div class="bot-container">
+        {% if user_bot %}
+            <h2>Sizning Telegram Botingiz</h2>
+            <div class="bot-info">
+                <p><strong>Bot username:</strong> @{{ user_bot.username or 'Noma\'lum' }}</p>
+                <p><strong>Til:</strong> {{ 'O\'zbekcha' if user_bot.language == 'uz' else 'Ruscha' if user_bot.language == 'ru' else 'Inglizcha' }}</p>
+                <p><strong>Webhook URL:</strong></p>
+                <div class="webhook-url">{{ user_bot.webhook_url }}</div>
+            </div>
+            
+            <h3>Bot Sozlamalarini Yangilash</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add_bot">
+                <div class="form-group">
+                    <label for="bot_token">Bot Tokeni:</label>
+                    <input type="text" id="bot_token" name="bot_token" value="{{ user_bot.token[:10] }}...{{ user_bot.token[-10:] if user_bot.token|length > 20 else user_bot.token }}" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
+                </div>
+                <div class="form-group">
+                    <label for="language">Til:</label>
+                    <select id="language" name="language">
+                        <option value="uz" {{ 'selected' if user_bot.language == 'uz' else '' }}>O'zbekcha</option>
+                        <option value="ru" {{ 'selected' if user_bot.language == 'ru' else '' }}>Ruscha</option>
+                        <option value="en" {{ 'selected' if user_bot.language == 'en' else '' }}>Inglizcha</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Yangilash</button>
+            </form>
+            
+            <form method="POST" style="margin-top: 20px;" onsubmit="return confirm('Rostdan ham botni o\'chirmoqchimisiz?')">
+                <input type="hidden" name="action" value="delete_bot">
+                <button type="submit" class="btn btn-danger">Botni O'chirish</button>
+            </form>
+        {% else %}
+            <h2>Telegram Bot Qo'shish</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="add_bot">
+                <div class="form-group">
+                    <label for="bot_token">Bot Tokeni:</label>
+                    <input type="text" id="bot_token" name="bot_token" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" required>
+                </div>
+                <div class="form-group">
+                    <label for="language">Til:</label>
+                    <select id="language" name="language">
+                        <option value="uz">O'zbekcha</option>
+                        <option value="ru">Ruscha</option>
+                        <option value="en">Inglizcha</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Bot Qo'shish</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>
