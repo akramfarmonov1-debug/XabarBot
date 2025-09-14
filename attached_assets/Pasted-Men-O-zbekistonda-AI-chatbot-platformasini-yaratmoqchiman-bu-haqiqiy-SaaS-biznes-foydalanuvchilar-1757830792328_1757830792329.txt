@@ -1,0 +1,89 @@
+Men O‘zbekistonda AI chatbot platformasini yaratmoqchiman — bu haqiqiy SaaS biznes, foydalanuvchilar uchun "bir fayl — uchta bot" imkoniyatini beradi. Loyiha quyidagi barcha funksiyalarni o'z ichiga olishi kerak — har bir qismni alohida tuzing va barchasini birga integratsiya qiling.
+
+LOYIHA NOMI: XabarBot.UZ
+
+1. ASOSIY STRUKTURA:
+- main.py: Flask app, gunicorn uchun tayyor (app.run(host='0.0.0.0', port=5000))
+- requirements.txt: Flask==3.0.3, python-dotenv==1.0.0, google-generativeai==0.5.0, flask-sqlalchemy==3.0.5, flask-login==0.6.3, flask-babel==3.1.0, PyPDF2==3.0.1, python-docx==1.0.0, pandas==2.2.2, cryptography==42.0.5, langdetect==1.0.9
+- .env: SECRET_KEY=your_super_secret_key_1234567890!, GEMINI_API_KEY=your_gemini_api_key_here, MAIL_USERNAME=your@gmail.com, MAIL_PASSWORD=your_app_password, WEBHOOK_BASE_URL=https://your-app.onrender.com, DATABASE_URL=sqlite:///app.db
+- Papkalar: templates/, static/, uploads/knowledge/, models/, routes/, utils/
+- index.html: asosiy sahifa — "XabarBot.UZ — O‘zingizning AI chatbotingizni 1 daqiqada yarating!" + Kirish/ro'yxatdan o'tish tugmalar
+
+2. FOYDALANUVCHI TIZIMI:
+- models/user.py: User modeli (id, full_name, phone, email, password_hash, trial_ends_at, plan='free', plan_expires_at, is_active=True, created_at)
+- telefon raqami validatsiyasi: ^\+998\d{9}$
+- ro'yxatdan o'tish: /register — ism, telefon, email, parol
+- kirish: /login — email, parol
+- logout: /logout
+- login qilganda — session['user_id'] bilan autentifikatsiya
+- foydalanuvchi ro'yxatdan o'tganda — trial_ends_at = datetime.utcnow() + timedelta(days=3)
+
+3. BILIMLAR BAZASINI YUKLASH:
+- models/knowledge_base.py: KnowledgeBase (id, user_id, file_name, file_path, content, uploaded_at, is_active)
+- upload fayllari: PDF, DOCX, CSV, TXT — max 10MB
+- utils/file_parser.py: PyPDF2, python-docx, pandas, re orqali matn ajratish
+- /upload-kb route — fayl yuklash formasi (templates/upload_kb.html)
+- yangi fayl yuklanganda — eski fayl o'chirilsin
+
+4. AI INTEGRATSIYASI (GEMINI 1.5 FLASH):
+- utils/ai_handler.py: get_ai_response(prompt, context) — Gemini 1.5 Flash API orqali javob beradi
+- kontekst: foydalanuvchining eng so'nggi yuklagan fayl matni
+- /chat POST — foydalanuvchi xabarini qabul qiladi → AI javobini qaytaradi (JSON)
+- templates/chat.html: text area + send button + suhbat tarixi (session['chat_history'])
+
+5. TELEGRAM BOT INTEGRATSIYASI:
+- models/telegram_bot.py: TelegramBot (id, user_id, token, username, webhook_url, language='uz')
+- utils/messaging/telegram.py: send_message_to_telegram(bot_token, chat_id, text)
+- routes/telegram_routes.py: /telegram/webhook/<int:user_id> — POST, so'rovni qabul qiladi, AI javobini yuboradi
+- templates/bots.html — foydalanuvchiga Telegram tokenini kiritish formasi
+
+6. ADMIN PANELI:
+- admin_required decorator — faqat is_admin=True bo'lganlar kirishi mumkin
+- models/user.py da is_admin boolean qo'shing
+- default admin hisobi: username='admin', email='admin@example.com', password_hash=generate_password_hash('admin123'), is_admin=True
+- routes/admin_routes.py: /admin/dashboard — jadval: foydalanuvchilar, status, plan, telefon, email, 'Tasdiqlash'/'O'chirish' tugmalari
+- /admin/approve/<id>, /admin/delete/<id>
+
+7. ALOQA TIZIMI (3 TA KANAL):
+- models/contact_log.py: ContactLog (id, user_id, channel='webchat'|'telegram'|'phone', message, reply, status='new'|'answered', created_at)
+- utils/contact_logger.py: log_contact() funksiyasi
+- templates/widgets/chat_widget.html: pastki o'ng burchakda "💡 Yordam kerak?" pulsirovka qiluvchi modal widget
+- static/js/chat-widget.js: modal ochish, xabar yuborish (AJAX /contact/webchat)
+- static/css/widget.css: fixed bottom-right, z-index: 9999, min-height: 44px
+- routes/contact_routes.py: 
+   - /contact/webchat POST — webchat xabarlarni saqlash
+   - /contact/telegram POST — telegram bot orqali kelgan xabarlarni saqlash
+   - /contact/phone POST — mock telefon qo'ng'iroq (raqamni qabul qiladi, admin panelida ko'rsatadi)
+- templates/admin/contacts.html — barcha aloqa xabarlarini jadval sifatida ko'rsatish (kanal, foydalanuvchi, xabar, vaqt, javob berildimi?)
+
+8. MULTILINGUAL SUPPORT (UZ/RU/EN):
+- flask-babel bilan tillar: LANGUAGES = ['uz', 'ru', 'en']
+- barcha matnlar _() ichida: _("Kirish"), _("Ro'yxatdan o'tish") va h.k.
+- /set-language/<locale> — session['locale'] ni o'zgartiradi
+- til avtomatik aniqlanadi: langdetect kutubxonasi orqali — WhatsApp/Instagramda mijoz qaysi tilda yozsa, shu tilda javob beradi
+
+9. AUTOMATED MARKETING:
+- utils/marketing_email.py: send_trial_reminder(user) — har 48 soatda (APScheduler orqali) trial foydalanuvchilarga email yuboradi
+- xabar: "Salom! Sizning sinov muddatingiz tugagan. 1 oylik rejani faollashtirish uchun [tugma] bosib, bizga murojaat qiling. Biz sizga 10% chegirma beramiz!"
+- SMTP: Gmail App Password orqali yuboriladi (test uchun print qiling)
+
+10. DIZAYN VA UX/UI:
+- Bootstrap 5 + Font Awesome + Inter font (CDN)
+- ranglar: #0066CC (ko'k), #FFD700 (sariq), #FFFFFF (oq), #333333 (qora)
+- mobile-first: 44px minimum button height, 16px font size, iOS zoom yo'q
+- navbar: til tanlash (+998), login/register, chat, knowledge, bots, admin
+- footer: © 2025 XabarBot.UZ — O‘zbek tilida xabar yozishni osonlashtiramiz
+- barcha template lar base.html dan meros olsin
+
+11. DEPLOYGA TAYYORLASH:
+- Procfile: web: gunicorn --bind 0.0.0.0:$PORT main:app
+- barcha fayllar UTF-8 kodirovkada
+- barcha url_for lari to'g'ri: main.home, auth.login, admin.dashboard, contact.webchat, etc.
+- hech qanday 500 error, 404 error, import error, undefined variable bo'lmasin
+- Replitda ishlaydigan bo'lsin — Render.com ga deploy qilinishga tayyor bo'lsin
+
+HECH QANDAY QO'SHIMCHA FUNKSIYA QO'SHMASSIN!
+Faqat yuqoridagi 11 ta bo'limni to'liq, aniq, tuzilgan holda amalga oshiring.
+Barcha fayllar to'g'ri papkalarga joylashtirilgan bo'lsin.
+Agar fayl allaqachon mavjud bo'lsa — uni o'chirib, yangisini yozing.
+AI Agent 3 — ushbu barcha fayllarni bir vaqtda tuzadi va Replitda ishlaydigan, 100% functional, production-ready platformani chiqaradi.
