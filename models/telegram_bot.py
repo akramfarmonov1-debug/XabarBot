@@ -34,3 +34,35 @@ class TelegramBot(db.Model):
     def find_by_token(cls, token):
         """Token bo'yicha telegram botni topish"""
         return cls.query.filter_by(token=token).first()
+    
+    def save(self):
+        """Ma'lumotlar bazasiga saqlash"""
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def delete(self):
+        """Ma'lumotlar bazasidan o'chirish"""
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    def update(self, **kwargs):
+        """Ma'lumotlarni yangilash"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e
