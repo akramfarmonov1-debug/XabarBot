@@ -8,14 +8,32 @@ channel = "stable-25_05"
 packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc"]
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "XabarBot Flask App"
+
+[[workflows.workflow]]
+name = "XabarBot Flask App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port main:app"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 34197
-externalPort = 3000
 
 [[ports]]
 localPort = 38937
