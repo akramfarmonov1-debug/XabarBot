@@ -178,7 +178,8 @@
                 <input type="hidden" name="action" value="add_bot">
                 <div class="form-group">
                     <label for="bot_token">Bot Tokeni:</label>
-                    <input type="text" id="bot_token" name="bot_token" value="{{ user_bot.token[:10] }}...{{ user_bot.token[-10:] if user_bot.token|length > 20 else user_bot.token }}" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
+                    <input type="text" id="bot_token" name="bot_token" placeholder="Yangi tokenni kiriting yoki o'zgartirish uchun bo'sh qoldiring">
+                    <small style="color: #666; font-size: 14px; display: block; margin-top: 5px;">Hozirgi token: {{ user_bot.token[:10] }}...{{ user_bot.token[-10:] if user_bot.token|length > 20 else user_bot.token }}</small>
                 </div>
                 <div class="form-group">
                     <label for="language">Til:</label>
