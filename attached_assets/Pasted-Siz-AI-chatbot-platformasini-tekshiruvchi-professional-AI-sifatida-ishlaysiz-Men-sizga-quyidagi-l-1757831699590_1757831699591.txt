@@ -1,0 +1,103 @@
+Siz — AI chatbot platformasini tekshiruvchi professional AI sifatida ishlaysiz. Men sizga quyidagi loyiha — "XabarBot.UZ" — ni 100% tekshirish va natija berishni buyuraman. Loyiha — haqiqiy SaaS platforma bo'lib, foydalanuvchilar uchun "bir fayl — uchta bot" imkoniyatini beradi.
+
+LOYIHA TALABLARI (BARCHASI TO'G'RI BO'LSIN):
+1. Foydalanuvchi ro'yxatdan o'tishi (ism, +998 telefon, email, parol) → 3 kunlik sinov
+2. PDF/DOCX/CSV/TXT fayllarni yuklash → matn ajratish → bilim bazasi
+3. AI: Google Gemini 1.5 Flash orqali suhbat → fayl matni asosida javob
+4. Telegram bot integratsiyasi: token kiriting → webhook ishlaydi
+5. Admin paneli: foydalanuvchilarni tasdiqlash/o'chirish, plan belgilash
+6. Aloqa tizimi: 
+   - Webchat widget (pastki o'ng burchakda "💡 Yordam kerak?") 
+   - Telegram bot orqali murojaat
+   - Telefon mock qo'ng'iroq (/contact/phone)
+7. Tillar: UZ/RU/EN — til avtomatik aniqlanadi (langdetect), Telegramda tanlanadi
+8. Marketing: har 48 soatda trial foydalanuvchilarga email xabar (mock: print)
+9. Dizayn: Bootstrap 5, #0066CC rang, mobile-first, 44px tugmalar, Inter font
+10. Deployga tayyor: Procfile, .env, gunicorn, Render.com uchun tayyor
+
+✅ TEKSHIRISH TALABI:
+Siz — loyihani 100% tekshirishingiz kerak. Buning uchun quyidagilarni qiling:
+
+1. Fayllar strukturasi:
+   - Papkalar: templates/, static/, uploads/knowledge/, models/, routes/, utils/
+   - Barcha fayllar mavjudmi? (main.py, requirements.txt, .env, Procfile, config.py)
+   - Hech qanday fayl yo'qmi? Yo'q bo'lsa — qaysi?
+
+2. Funksional testlar:
+   a) Ro'yxatdan o'tish: /register → yangi foydalanuvchi yaratilgani tekshiring → trial_ends_at = today + 3 days?
+   b) Kirish: /login → session['user_id'] saqlanadimi?
+   c) Foyl yuklash: /upload-kb → PDF yuklab, content maydoniga matn saqlanadimi?
+   d) Chat: /chat → AI javob beradimi? (fayl matni bilan kontekstda)
+   e) Telegram bot: /telegram/webhook/<id> route mavjudmi? Token kiritsa, webhook URL chiqadimi?
+   f) Admin paneli: /admin/dashboard → admin hisobi mavjudmi? (admin@example.com / admin123)
+   g) Aloqa tizimi:
+      - Webchat widget saytda ko'rinadimi? (HTML/CSS/JS)
+      - /contact/webchat POST ishlaydimi?
+      - /contact/phone POST ishlaydimi?
+   h) Tillar: /set-language/uz ru en → matnlar o'zgaradimi? WhatsApp/Instagramda matn avtomatik aniqlanadimi?
+   i) Marketing: har 48 soatda email yuboriladimi? (utils/marketing_email.py ishlaydimi?)
+   j) Dizayn: sayt mobile-da to'g'ri ko'rinadimi? Buttonlar 44px dan katta? Font Inter? Rang #0066CC?
+
+3. Texnik tekshiruv:
+   - Barcha importlar to'g'rimi? (hech qanday ModuleNotFoundError yo'qmi?)
+   - Barcha url_for() lari to'g'rimi? (main.index emas, main.home bo'lishi kerak)
+   - Barcha shifrlashlar to'g'rimi? (password_hash, fernet token)
+   - Barcha DB modeli to'g'rimi? (foreign key, primary key, nullable=False)
+   - Barcha decoratorlar ishlaydimi? (@login_required, @admin_required)
+   - Barcha template lar base.html dan meros olsinmi?
+   - .env faylidagi GEMINI_API_KEY to'g'rimi? (bo'sh emasmi?)
+
+4. Xavfsizlik:
+   - Parollar hashlanganmi?
+   - API kalitlari shifrlanganmi?
+   - Webhooklar faqat POST qabul qiladimi?
+   - File upload max 10MB mi?
+
+5. Deploy tayyorgarligi:
+   - Procfile mavjudmi? (web: gunicorn --bind 0.0.0.0:$PORT main:app)
+   - requirements.txt da barcha kutubxonalar bormi?
+   - .env faylida WEBHOOK_BASE_URL HTTPS manzili bormi?
+
+6. NARXI:
+   Agar bitta ham funksiya ishlamasa, bitta ham fayl yo'q bo'lsa, bitta ham xato bo'lsa — loyihani "FAIL" deb hisoblang.
+   Agar barchasi to'g'ri, ishlasa, xato bo'lmasa — "PASS" deb hisoblang.
+
+7. NATIJA CHIQARISH:
+   Siz — quyidagi formatda aniq, tushunarli, o'zbek tilida natijani chiqaring:
+
+---
+✅ LOYIHA TEKSHIRUVI: XABARBOT.UZ  
+✅ BOSQICHLAR SONI: 10  
+✅ QAYTARILGAN NATIJA: [PASS / FAIL]  
+
+📌 DETALLAR:
+
+1. FAYLLAR STRUKTURASI → [TO'G'RI / XATO] → [Nima yo'q yoki noto'g'ri?]  
+2. RO'YXATDAN O'TISH → [TO'G'RI / XATO] → [Nima noto'g'ri?]  
+3. FAYL YUKLASH → [TO'G'RI / XATO] → [PDF/DOCX/CSV/TXT ishladimi?]  
+4. AI CHAT → [TO'G'RI / XATO] → [Gemini javob beradimi?]  
+5. TELEGRAM BOT → [TO'G'RI / XATO] → [Webhook ishlaydimi?]  
+6. ADMIN PANELI → [TO'G'RI / XATO] → [Admin hisobi bormi?]  
+7. ALOQA TIZIMI → [TO'G'RI / XATO] → [Webchat, phone, telegram ishladimi?]  
+8. TILLAR → [TO'G'RI / XATO] → [UZ/RU/EN ishladimi? Avtomatik aniqlash?]  
+9. MARKETING → [TO'G'RI / XATO] → [Email xabar chiqadimi?]  
+10. DIZAYN → [TO'G'RI / XATO] → [Mobile, rang, font, buttonlar to'g'rimi?]  
+11. TEXNIK XATOLAR → [TO'G'RI / XATO] → [Import, url_for, decorator, DB xatolar?]  
+12. XAVFSIZLIK → [TO'G'RI / XATO] → [Shifrlash, upload limit, POST only?]  
+13. DEPLOYGA TAYYORLIK → [TO'G'RI / XATO] → [Procfile, .env, requirements to'g'rimi?]  
+
+📝 UMUMIY XULOSA:  
+[Agar PASS bo'lsa: "Loyiha 100% ishlaydi. Barcha funksiyalar talab darajasida ishlayapti. Deployga tayyor."]  
+[Agar FAIL bo'lsa: "Loyiha ishlamayapti. Quyidagi muammolar tuzatilishi kerak: [ro'yxat]."]  
+---
+
+❗️Eslatma:  
+- Siz hech qanday "may be", "probably", "try to" degan so'zlardan foydalana olmaysiz.  
+- Faqat aniq, real, test qilingan, kodga asoslangan natijalarni aytishingiz kerak.  
+- Agar bironta funksiya ishlamasa — uning nomini va qayerda xato bo'lganini ayting.  
+- Agar barcha funksiyalar ishlasa — "PASS" deb yozing — va "Deployga tayyor!" deb qo'shing.
+
+Siz — AI Agent 3.  
+Siz — tekshiruvchi.  
+Siz — ishonchli.  
+Endi — loyihani tekshiring.  
