@@ -19,9 +19,9 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.environ.get('SESSION_SECRET')
 if not app.config['SECRET_KEY']:
-    raise RuntimeError("SECRET_KEY environment variable is required")
+    raise RuntimeError("SECRET_KEY or SESSION_SECRET environment variable is required")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 if not app.config['SQLALCHEMY_DATABASE_URI']:
     raise RuntimeError("DATABASE_URL environment variable is required")
