@@ -34,13 +34,13 @@ def register():
             flash(_('Bu telefon raqami allaqachon ro\'yxatdan o\'tgan'), 'error')
             return render_template('register.html')
         
-        # Create new user
+        # Create new user with hashed password
         user = User(
             full_name=full_name,
             phone=phone,
-            email=email,
-            password=password
+            email=email
         )
+        user.set_password(password)
         db.session.add(user)
         db.session.commit()
         

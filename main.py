@@ -141,37 +141,41 @@ with app.app_context():
                 full_name='Administrator',
                 phone='+998901234567',
                 email=admin_email,
-                password=generate_password_hash(admin_password),
                 is_admin=True,
                 is_active=True
             )
+            admin_user.set_password(admin_password)
             db.session.add(admin_user)
             db.session.commit()
 
-# Email scheduler setup
+# Email scheduler setup (only for single process/development)
 def setup_email_scheduler():
-    """Setup automated email scheduler"""
-    try:
-        scheduler = BackgroundScheduler()
-        
-        # Send trial reminder emails every 12 hours
-        from utils.marketing_email import send_trial_reminders_batch
-        scheduler.add_job(
-            func=send_trial_reminders_batch,
-            trigger=IntervalTrigger(hours=12),
-            id='trial_reminders',
-            name='Send trial reminder emails',
-            replace_existing=True
-        )
-        
-        scheduler.start()
-        app.logger.info("Email scheduler started successfully")
-        
-        # Shutdown scheduler on app exit
-        atexit.register(lambda: scheduler.shutdown())
-        
-    except Exception as e:
-        app.logger.error(f"Failed to start email scheduler: {str(e)}")
+    """Setup automated email scheduler for development"""
+    # Only run scheduler in development or when explicitly enabled
+    if os.environ.get('ENABLE_SCHEDULER', 'false').lower() == 'true' or app.config.get('DEBUG'):
+        try:
+            scheduler = BackgroundScheduler()
+            
+            # Send trial reminder emails every 12 hours
+            from utils.marketing_email import send_trial_reminders_batch
+            scheduler.add_job(
+                func=send_trial_reminders_batch,
+                trigger=IntervalTrigger(hours=12),
+                id='trial_reminders',
+                name='Send trial reminder emails',
+                replace_existing=True
+            )
+            
+            scheduler.start()
+            print("Email scheduler started successfully")
+            
+            # Shutdown scheduler on app exit
+            atexit.register(lambda: scheduler.shutdown())
+            
+        except Exception as e:
+            print(f"Failed to start email scheduler: {str(e)}")
+    else:
+        print("Email scheduler disabled in production (use external cron job)")
 
 # Initialize scheduler
 with app.app_context():
