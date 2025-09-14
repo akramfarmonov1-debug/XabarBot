@@ -5,8 +5,10 @@ from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
 from routes.chat_routes import chat_bp
+from routes.telegram_routes import telegram_bp
 from models.user import User
 from models.knowledge_base import KnowledgeBase
+from models.telegram_bot import TelegramBot
 
 load_dotenv()
 
@@ -23,10 +25,12 @@ if gemini_api_key:
 app.register_blueprint(auth_bp, url_prefix='/')
 app.register_blueprint(kb_bp, url_prefix='/')
 app.register_blueprint(chat_bp, url_prefix='/')
+app.register_blueprint(telegram_bp, url_prefix='/')
 
 # Ma'lumotlar bazasi jadvallarini yaratish
 User.create_table()
 KnowledgeBase.create_table()
+TelegramBot.create_table()
 
 @app.route('/')
 def index():

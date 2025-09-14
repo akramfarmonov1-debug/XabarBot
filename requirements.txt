@@ -19,3 +19,4 @@ python-docx
 python-dotenv
 WTForms
 gunicorn
+requests
