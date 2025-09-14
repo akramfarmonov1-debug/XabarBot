@@ -148,12 +148,9 @@ XabarBot.UZ jamoasi
             body=body
         )
         
-        # In development, just print the email
+        # In development, just log the email (don't print)
         if current_app.config.get('DEBUG'):
-            print(f"\n=== WELCOME EMAIL SENT TO {user.email} ===")
-            print(f"Subject: {subject}")
-            print(f"Body:\n{body}")
-            print("=" * 50)
+            current_app.logger.info(f"WELCOME EMAIL would be sent to {user.email}")
             return True
         else:
             mail.send(msg)

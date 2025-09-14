@@ -172,15 +172,15 @@ def setup_email_scheduler():
             )
             
             scheduler.start()
-            print("Email scheduler started successfully")
+            app.logger.info("Email scheduler started successfully")
             
             # Shutdown scheduler on app exit
             atexit.register(lambda: scheduler.shutdown())
             
         except Exception as e:
-            print(f"Failed to start email scheduler: {str(e)}")
+            app.logger.error(f"Failed to start email scheduler: {str(e)}")
     else:
-        print("Email scheduler disabled in production (use external cron job)")
+        app.logger.info("Email scheduler disabled in production (use external cron job)")
 
 # Initialize scheduler
 with app.app_context():
