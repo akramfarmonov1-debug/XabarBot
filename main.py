@@ -16,7 +16,9 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(32)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+if not app.config['SECRET_KEY']:
+    raise RuntimeError("SECRET_KEY environment variable is required")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 if not app.config['SQLALCHEMY_DATABASE_URI']:
     raise RuntimeError("DATABASE_URL environment variable is required")
@@ -126,20 +128,22 @@ def inject_conf_vars():
 with app.app_context():
     db.create_all()
     
-    # Create default admin user with secure password
-    admin_exists = User.query.filter_by(email='admin@example.com').first()
-    if not admin_exists:
-        admin_password = os.environ.get('ADMIN_PASSWORD', generate_password_hash('admin123'))
-        admin_user = User(
-            full_name='Admin',
-            phone='+998901234567',
-            email='admin@example.com',
-            password=admin_password if admin_password.startswith('$') else generate_password_hash(admin_password),
-            is_admin=True,
-            is_active=True
-        )
-        db.session.add(admin_user)
-        db.session.commit()
+    # Create admin user only if explicitly configured
+    admin_email = os.environ.get('ADMIN_EMAIL')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    if admin_email and admin_password:
+        admin_exists = User.query.filter_by(email=admin_email).first()
+        if not admin_exists:
+            admin_user = User(
+                full_name='Administrator',
+                phone='+998901234567',
+                email=admin_email,
+                password=generate_password_hash(admin_password),
+                is_admin=True,
+                is_active=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
