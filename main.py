@@ -1,7 +1,8 @@
 import os
 import google.generativeai as genai
-from flask import Flask, render_template, session, redirect, url_for, flash
+from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_wtf.csrf import CSRFProtect
+from flask_babel import Babel, _, get_locale
 from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
@@ -17,6 +18,21 @@ from models.contact_log import ContactLog
 load_dotenv()
 
 app = Flask(__name__)
+
+# Babel konfiguratsiyasi (xalqarolashtirish)
+app.config['LANGUAGES'] = {
+    'uz': 'O\'zbekcha',
+    'ru': 'Русский', 
+    'en': 'English'
+}
+babel = Babel(app)
+
+@babel.localeselector
+def get_locale():
+    # URL parametridan til olish
+    if request.args.get('lang'):
+        session['language'] = request.args.get('lang')
+    return session.get('language', 'uz')
 
 # SESSION_SECRET muhim bo'lib, har safar restart qilganda o'zgarib ketmasligi kerak
 session_secret = os.environ.get('SESSION_SECRET')
@@ -49,13 +65,18 @@ TelegramBot.create_table()
 ContactLog.create_table()
 
 @app.route('/')
-def index():
+def home():
     if 'user_id' in session:
         return render_template('index.html', 
                              user_name=session.get('user_name'),
                              user_email=session.get('user_email'))
     else:
         return redirect(url_for('auth.login'))
+
+@app.route('/set_language/<language>')
+def set_language(language=None):
+    session['language'] = language
+    return redirect(request.referrer or url_for('main.home'))
 
 @app.errorhandler(413)
 def too_large(e):

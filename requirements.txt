@@ -22,3 +22,4 @@ python-docx
 python-dotenv
 requests
 WTForms
+Flask-Babel
