@@ -28,10 +28,15 @@ if not app.config['SQLALCHEMY_DATABASE_URI']:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
 
-# Security settings for production
-app.config['SESSION_COOKIE_SECURE'] = True
+# Security settings for production and development
+app.config['SESSION_COOKIE_SECURE'] = True  # Always secure for HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PREFERRED_URL_SCHEME'] = 'https'
+
+# Configure proxy handling for Replit environment
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 # Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
