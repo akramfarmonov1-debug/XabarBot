@@ -65,6 +65,16 @@
         <p>Bu platformada siz AI yordamchisi bilan suhbatlashishingiz mumkin.</p>
         {% if user_name %}
             <p>Sizning 3 kunlik bepul sinov muddatingiz boshlanadi.</p>
+            
+            <div style="margin-top: 30px;">
+                <h3>Mavjud xizmatlar:</h3>
+                <div style="margin-top: 15px;">
+                    <a href="{{ url_for('kb.upload_kb') }}" style="background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">📁 Fayl yuklash</a>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                    PDF, DOCX, CSV yoki TXT fayllarini yuklab, ularni matn ko'rinishida saqlang.
+                </p>
+            </div>
         {% endif %}
     </div>
 </body>
