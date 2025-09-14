@@ -81,7 +81,7 @@ def home():
 @app.route('/set_language/<language>')
 def set_language(language=None):
     session['language'] = language
-    return redirect(request.referrer or url_for('main.home'))
+    return redirect(request.referrer or url_for('home'))
 
 @app.errorhandler(413)
 def too_large(e):
