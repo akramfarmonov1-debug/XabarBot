@@ -1,0 +1,151 @@
+# English translations for XabarBot.UZ
+# Copyright (C) 2025
+msgid ""
+msgstr ""
+"Project-Id-Version: XabarBot.UZ 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-09-14 12:00+0000\n"
+"PO-Revision-Date: 2025-09-14 12:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+# Navigation and common buttons
+msgid "Asosiy"
+msgstr "Home"
+
+msgid "Chat"
+msgstr "Chat"
+
+msgid "Bilim bazasi"
+msgstr "Knowledge Base"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Kirish"
+msgstr "Login"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Register"
+
+msgid "Chiqish"
+msgstr "Logout"
+
+msgid "Foydalanuvchi"
+msgstr "User"
+
+# Common phrases
+msgid "XabarBot.UZ - AI yordamchisi"
+msgstr "XabarBot.UZ - AI Assistant"
+
+msgid "AI asosidagi aqlli yordamchi"
+msgstr "Smart AI-powered assistant"
+
+msgid "Barcha huquqlar himoyalangan."
+msgstr "All rights reserved."
+
+# Forms
+msgid "Email"
+msgstr "Email"
+
+msgid "Parol"
+msgstr "Password"
+
+msgid "Ism"
+msgstr "Name"
+
+msgid "Parolni tasdiqlash"
+msgstr "Confirm Password"
+
+msgid "Eslab qolish"
+msgstr "Remember me"
+
+# Messages
+msgid "Xush kelibsiz!"
+msgstr "Welcome!"
+
+msgid "Muvaffaqiyatli ro'yxatdan o'tdingiz"
+msgstr "You have successfully registered"
+
+msgid "Email yoki parol noto'g'ri"
+msgstr "Incorrect email or password"
+
+msgid "Bu email allaqachon ro'yxatdan o'tgan"
+msgstr "This email is already registered"
+
+msgid "Parollar mos kelmaydi"
+msgstr "Passwords do not match"
+
+# File upload
+msgid "Fayl tanlang"
+msgstr "Choose file"
+
+msgid "Yuklash"
+msgstr "Upload"
+
+msgid "Fayl muvaffaqiyatli yuklandi"
+msgstr "File uploaded successfully"
+
+msgid "Fayl yuklanmadi"
+msgstr "File not uploaded"
+
+# Chat
+msgid "Xabar yozing..."
+msgstr "Write a message..."
+
+msgid "Yuborish"
+msgstr "Send"
+
+msgid "Chat tarixi"
+msgstr "Chat history"
+
+# Dashboard
+msgid "Boshqaruv paneli"
+msgstr "Dashboard"
+
+msgid "Foydalanuvchilar"
+msgstr "Users"
+
+msgid "Xabarlar"
+msgstr "Messages"
+
+msgid "Fayllar"
+msgstr "Files"
+
+# Buttons and actions
+msgid "Saqlash"
+msgstr "Save"
+
+msgid "Bekor qilish"
+msgstr "Cancel"
+
+msgid "O'chirish"
+msgstr "Delete"
+
+msgid "Tahrirlash"
+msgstr "Edit"
+
+msgid "Ko'rish"
+msgstr "View"
+
+msgid "Yangilash"
+msgstr "Update"
+
+msgid "Qidirish"
+msgstr "Search"
+
+# Validation messages
+msgid "Bu maydon majburiy"
+msgstr "This field is required"
+
+msgid "Email formati noto'g'ri"
+msgstr "Invalid email format"
+
+msgid "Parol juda qisqa"
+msgstr "Password is too short"

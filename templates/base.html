@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ get_locale() }}">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block description %}{{ _('XabarBot.UZ - AI yordamchisi') }}{% endblock %}">
+    <meta name="description" content="{% block description %}XabarBot.UZ - AI yordamchisi{% endblock %}">
     <title>{% block title %}XabarBot.UZ{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
@@ -26,7 +26,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('main.home') }}">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
                 <i class="bi bi-robot me-2"></i>XabarBot.UZ
             </a>
             
@@ -38,7 +38,7 @@
                 <ul class="navbar-nav me-auto">
                     {% if session.get('user_id') %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.home') }}">
+                        <a class="nav-link" href="{{ url_for('home') }}">
                             <i class="bi bi-house me-1"></i>{{ _('Asosiy') }}
                         </a>
                     </li>
@@ -69,9 +69,9 @@
                             <i class="bi bi-globe me-1"></i>{{ session.get('language', 'uz').upper() }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('main.set_language', language='uz') }}">O'zbekcha</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.set_language', language='ru') }}">Русский</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.set_language', language='en') }}">English</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', language='uz') }}">O'zbekcha</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', language='ru') }}">Русский</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">English</a></li>
                         </ul>
                     </li>
                     
@@ -94,7 +94,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.register') }}">
-                            <i class="bi bi-person-plus me-1"></i>{{ _('Ro'yxatdan o'tish') }}
+                            <i class="bi bi-person-plus me-1"></i>{{ _("Ro'yxatdan o'tish") }}
                         </a>
                     </li>
                     {% endif %}

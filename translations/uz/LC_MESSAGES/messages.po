@@ -1,0 +1,151 @@
+# Uzbek translations for XabarBot.UZ
+# Copyright (C) 2025
+msgid ""
+msgstr ""
+"Project-Id-Version: XabarBot.UZ 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-09-14 12:00+0000\n"
+"PO-Revision-Date: 2025-09-14 12:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uz\n"
+"Language-Team: uz <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+# Navigation and common buttons
+msgid "Asosiy"
+msgstr "Asosiy"
+
+msgid "Chat"
+msgstr "Chat"
+
+msgid "Bilim bazasi"
+msgstr "Bilim bazasi"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Kirish"
+msgstr "Kirish"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Ro'yxatdan o'tish"
+
+msgid "Chiqish"
+msgstr "Chiqish"
+
+msgid "Foydalanuvchi"
+msgstr "Foydalanuvchi"
+
+# Common phrases
+msgid "XabarBot.UZ - AI yordamchisi"
+msgstr "XabarBot.UZ - AI yordamchisi"
+
+msgid "AI asosidagi aqlli yordamchi"
+msgstr "AI asosidagi aqlli yordamchi"
+
+msgid "Barcha huquqlar himoyalangan."
+msgstr "Barcha huquqlar himoyalangan."
+
+# Forms
+msgid "Email"
+msgstr "Email"
+
+msgid "Parol"
+msgstr "Parol"
+
+msgid "Ism"
+msgstr "Ism"
+
+msgid "Parolni tasdiqlash"
+msgstr "Parolni tasdiqlash"
+
+msgid "Eslab qolish"
+msgstr "Eslab qolish"
+
+# Messages
+msgid "Xush kelibsiz!"
+msgstr "Xush kelibsiz!"
+
+msgid "Muvaffaqiyatli ro'yxatdan o'tdingiz"
+msgstr "Muvaffaqiyatli ro'yxatdan o'tdingiz"
+
+msgid "Email yoki parol noto'g'ri"
+msgstr "Email yoki parol noto'g'ri"
+
+msgid "Bu email allaqachon ro'yxatdan o'tgan"
+msgstr "Bu email allaqachon ro'yxatdan o'tgan"
+
+msgid "Parollar mos kelmaydi"
+msgstr "Parollar mos kelmaydi"
+
+# File upload
+msgid "Fayl tanlang"
+msgstr "Fayl tanlang"
+
+msgid "Yuklash"
+msgstr "Yuklash"
+
+msgid "Fayl muvaffaqiyatli yuklandi"
+msgstr "Fayl muvaffaqiyatli yuklandi"
+
+msgid "Fayl yuklanmadi"
+msgstr "Fayl yuklanmadi"
+
+# Chat
+msgid "Xabar yozing..."
+msgstr "Xabar yozing..."
+
+msgid "Yuborish"
+msgstr "Yuborish"
+
+msgid "Chat tarixi"
+msgstr "Chat tarixi"
+
+# Dashboard
+msgid "Boshqaruv paneli"
+msgstr "Boshqaruv paneli"
+
+msgid "Foydalanuvchilar"
+msgstr "Foydalanuvchilar"
+
+msgid "Xabarlar"
+msgstr "Xabarlar"
+
+msgid "Fayllar"
+msgstr "Fayllar"
+
+# Buttons and actions
+msgid "Saqlash"
+msgstr "Saqlash"
+
+msgid "Bekor qilish"
+msgstr "Bekor qilish"
+
+msgid "O'chirish"
+msgstr "O'chirish"
+
+msgid "Tahrirlash"
+msgstr "Tahrirlash"
+
+msgid "Ko'rish"
+msgstr "Ko'rish"
+
+msgid "Yangilash"
+msgstr "Yangilash"
+
+msgid "Qidirish"
+msgstr "Qidirish"
+
+# Validation messages
+msgid "Bu maydon majburiy"
+msgstr "Bu maydon majburiy"
+
+msgid "Email formati noto'g'ri"
+msgstr "Email formati noto'g'ri"
+
+msgid "Parol juda qisqa"
+msgstr "Parol juda qisqa"

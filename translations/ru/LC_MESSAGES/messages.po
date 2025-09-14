@@ -1,0 +1,151 @@
+# Russian translations for XabarBot.UZ
+# Copyright (C) 2025
+msgid ""
+msgstr ""
+"Project-Id-Version: XabarBot.UZ 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-09-14 12:00+0000\n"
+"PO-Revision-Date: 2025-09-14 12:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14) ? 2 : 3)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+# Navigation and common buttons
+msgid "Asosiy"
+msgstr "Главная"
+
+msgid "Chat"
+msgstr "Чат"
+
+msgid "Bilim bazasi"
+msgstr "База знаний"
+
+msgid "Admin"
+msgstr "Админ"
+
+msgid "Kirish"
+msgstr "Войти"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Регистрация"
+
+msgid "Chiqish"
+msgstr "Выйти"
+
+msgid "Foydalanuvchi"
+msgstr "Пользователь"
+
+# Common phrases
+msgid "XabarBot.UZ - AI yordamchisi"
+msgstr "XabarBot.UZ - ИИ ассистент"
+
+msgid "AI asosidagi aqlli yordamchi"
+msgstr "Умный помощник на основе ИИ"
+
+msgid "Barcha huquqlar himoyalangan."
+msgstr "Все права защищены."
+
+# Forms
+msgid "Email"
+msgstr "Email"
+
+msgid "Parol"
+msgstr "Пароль"
+
+msgid "Ism"
+msgstr "Имя"
+
+msgid "Parolni tasdiqlash"
+msgstr "Подтвердить пароль"
+
+msgid "Eslab qolish"
+msgstr "Запомнить меня"
+
+# Messages
+msgid "Xush kelibsiz!"
+msgstr "Добро пожаловать!"
+
+msgid "Muvaffaqiyatli ro'yxatdan o'tdingiz"
+msgstr "Вы успешно зарегистрировались"
+
+msgid "Email yoki parol noto'g'ri"
+msgstr "Неверный email или пароль"
+
+msgid "Bu email allaqachon ro'yxatdan o'tgan"
+msgstr "Этот email уже зарегистрирован"
+
+msgid "Parollar mos kelmaydi"
+msgstr "Пароли не совпадают"
+
+# File upload
+msgid "Fayl tanlang"
+msgstr "Выберите файл"
+
+msgid "Yuklash"
+msgstr "Загрузить"
+
+msgid "Fayl muvaffaqiyatli yuklandi"
+msgstr "Файл успешно загружен"
+
+msgid "Fayl yuklanmadi"
+msgstr "Файл не загружен"
+
+# Chat
+msgid "Xabar yozing..."
+msgstr "Написать сообщение..."
+
+msgid "Yuborish"
+msgstr "Отправить"
+
+msgid "Chat tarixi"
+msgstr "История чата"
+
+# Dashboard
+msgid "Boshqaruv paneli"
+msgstr "Панель управления"
+
+msgid "Foydalanuvchilar"
+msgstr "Пользователи"
+
+msgid "Xabarlar"
+msgstr "Сообщения"
+
+msgid "Fayllar"
+msgstr "Файлы"
+
+# Buttons and actions
+msgid "Saqlash"
+msgstr "Сохранить"
+
+msgid "Bekor qilish"
+msgstr "Отменить"
+
+msgid "O'chirish"
+msgstr "Удалить"
+
+msgid "Tahrirlash"
+msgstr "Редактировать"
+
+msgid "Ko'rish"
+msgstr "Просмотр"
+
+msgid "Yangilash"
+msgstr "Обновить"
+
+msgid "Qidirish"
+msgstr "Поиск"
+
+# Validation messages
+msgid "Bu maydon majburiy"
+msgstr "Это поле обязательно"
+
+msgid "Email formati noto'g'ri"
+msgstr "Неверный формат email"
+
+msgid "Parol juda qisqa"
+msgstr "Пароль слишком короткий"

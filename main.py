@@ -2,7 +2,7 @@ import os
 import google.generativeai as genai
 from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_wtf.csrf import CSRFProtect
-from flask_babel import Babel, _, get_locale
+from flask_babel import Babel, _
 from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
@@ -25,14 +25,19 @@ app.config['LANGUAGES'] = {
     'ru': 'Русский', 
     'en': 'English'
 }
-babel = Babel(app)
 
-@babel.localeselector
-def get_locale():
+def select_locale():
     # URL parametridan til olish
     if request.args.get('lang'):
         session['language'] = request.args.get('lang')
     return session.get('language', 'uz')
+
+babel = Babel(app, locale_selector=select_locale)
+
+@app.context_processor
+def inject_babel_get_locale():
+    from flask_babel import get_locale as babel_get_locale
+    return dict(get_locale=babel_get_locale)
 
 # SESSION_SECRET muhim bo'lib, har safar restart qilganda o'zgarib ketmasligi kerak
 session_secret = os.environ.get('SESSION_SECRET')
