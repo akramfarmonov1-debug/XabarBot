@@ -10,3 +10,15 @@ pandas==2.2.3
 google-generativeai==0.5.0
 gunicorn==23.0.0
 requests==2.32.5
+bcrypt
+Flask
+Flask-WTF
+google-generativeai
+gunicorn
+pandas
+psycopg2-binary
+PyPDF2
+python-docx
+python-dotenv
+requests
+WTForms
