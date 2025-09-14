@@ -65,8 +65,14 @@ def login():
                 session['user_id'] = user.id
                 session['user_email'] = user.email
                 session['user_name'] = user.full_name
+                session['is_admin'] = user.is_admin
                 flash('Muvaffaqiyatli kirildi!', 'success')
-                return redirect(url_for('index'))
+                
+                # Admin foydalanuvchini admin panelga yo'naltirish
+                if user.is_admin:
+                    return redirect(url_for('admin.dashboard'))
+                else:
+                    return redirect(url_for('index'))
             else:
                 flash('Sizning akkauntingiz faol emas', 'error')
         else:
