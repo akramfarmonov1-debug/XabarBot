@@ -23,3 +23,8 @@ class KnowledgeBase(db.Model):
     
     def __repr__(self):
         return f'<KnowledgeBase {self.file_name}>'
+    
+    @classmethod
+    def find_by_user_id(cls, user_id):
+        """Foydalanuvchi ID bo'yicha bilim bazasi ma'lumotlarini topish"""
+        return cls.query.filter_by(user_id=user_id, is_active=True).all()

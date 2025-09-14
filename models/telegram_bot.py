@@ -24,3 +24,13 @@ class TelegramBot(db.Model):
     
     def __repr__(self):
         return f'<TelegramBot {self.username or self.token[:10]}>'
+    
+    @classmethod
+    def find_by_user_id(cls, user_id):
+        """Foydalanuvchi ID bo'yicha telegram botni topish"""
+        return cls.query.filter_by(user_id=user_id).first()
+    
+    @classmethod
+    def find_by_token(cls, token):
+        """Token bo'yicha telegram botni topish"""
+        return cls.query.filter_by(token=token).first()
