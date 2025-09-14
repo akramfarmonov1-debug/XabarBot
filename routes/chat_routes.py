@@ -1,67 +1,74 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
+from flask_login import login_required, current_user
+from flask_babel import _
+from datetime import datetime
 from models.knowledge_base import KnowledgeBase
 from utils.ai_handler import get_ai_response
 
 chat_bp = Blueprint('chat', __name__)
 
-@chat_bp.route('/chat', methods=['GET', 'POST'])
+@chat_bp.route('/')
+@login_required
 def chat():
-    # Foydalanuvchi tizimga kirganligini tekshirish
-    if 'user_id' not in session:
-        flash('Chat uchun tizimga kiring', 'error')
-        return redirect(url_for('auth.login'))
-    
-    user_id = session['user_id']
-    
-    # Chat tarixini session dan olish
-    if 'chat_history' not in session:
-        session['chat_history'] = []
-    
-    if request.method == 'POST':
-        user_message = request.form.get('message', '').strip()
+    return render_template('chat.html')
+
+@chat_bp.route('/send', methods=['POST'])
+@login_required
+def send_message():
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
         
-        if not user_message:
-            flash('Xabar kiritilmadi', 'error')
-            return render_template('chat.html', chat_history=session['chat_history'])
+        if not message:
+            return jsonify({'error': _('Xabar bo\'sh bo\'lishi mumkin emas')}), 400
         
-        # Foydalanuvchining yuklangan faylini olish
-        kb = KnowledgeBase.find_by_user_id(user_id)
-        context = ""
-        if kb and kb.content:
-            context = kb.content
+        # Get user's latest knowledge base content
+        kb = KnowledgeBase.query.filter_by(
+            user_id=current_user.id, 
+            is_active=True
+        ).order_by(KnowledgeBase.uploaded_at.desc()).first()
         
-        # AI javobini olish
-        ai_response = get_ai_response(user_message, context)
+        context = kb.content if kb else None
         
-        # Chat tarixiga qo'shish
-        chat_entry = {
-            'user_message': user_message,
-            'ai_response': ai_response,
-            'has_context': bool(context and context.strip())
-        }
+        # Get language from session
+        language = session.get('language', 'uz')
         
-        session['chat_history'].append(chat_entry)
+        # Get AI response
+        response = get_ai_response(message, context, language)
         
-        # Session o'zgarishlarini saqlash
+        # Store chat history in session
+        if 'chat_history' not in session:
+            session['chat_history'] = []
+        
+        session['chat_history'].append({
+            'user': message,
+            'ai': response,
+            'timestamp': str(datetime.utcnow())
+        })
+        
+        # Keep only last 20 messages
+        if len(session['chat_history']) > 20:
+            session['chat_history'] = session['chat_history'][-20:]
+        
         session.modified = True
         
-        # Tarixni cheklash (oxirgi 50 ta suhbat)
-        if len(session['chat_history']) > 50:
-            session['chat_history'] = session['chat_history'][-50:]
-    
-    return render_template('chat.html', 
-                         chat_history=session['chat_history'],
-                         has_knowledge_base=bool(kb and kb.content) if 'kb' in locals() else False)
+        return jsonify({
+            'response': response,
+            'success': True
+        })
+        
+    except Exception as e:
+        return jsonify({'error': _('Xatolik yuz berdi')}), 500
 
-@chat_bp.route('/clear-chat', methods=['POST'])
-def clear_chat():
-    # Foydalanuvchi tizimga kirganligini tekshirish
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-    
-    # Chat tarixini tozalash
+@chat_bp.route('/history')
+@login_required
+def get_history():
+    history = session.get('chat_history', [])
+    return jsonify({'history': history})
+
+@chat_bp.route('/clear')
+@login_required
+def clear_history():
     session['chat_history'] = []
     session.modified = True
-    
-    flash('Chat tarixi tozalandi', 'info')
-    return redirect(url_for('chat.chat'))
+    return jsonify({'success': True})

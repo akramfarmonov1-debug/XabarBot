@@ -1,56 +1,59 @@
-import os
 import google.generativeai as genai
-from dotenv import load_dotenv
+from langdetect import detect
+import os
 
-load_dotenv()
-
-def get_ai_response(prompt: str, context: str) -> str:
-    """
-    Google Gemini 1.5 Flash API orqali AI javobini olish
-    
-    Args:
-        prompt: Foydalanuvchi so'rovi
-        context: Yuklangan fayldan olingan matn konteksti
-    
-    Returns:
-        AI javob matni
-    """
+def get_ai_response(prompt, context=None, language='uz'):
+    """Get AI response from Google Gemini with context"""
     try:
-        # Gemini modelini olish
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Detect language if not provided
+        if not language or language == 'auto':
+            try:
+                language = detect(prompt)
+                if language not in ['uz', 'ru', 'en']:
+                    language = 'uz'
+            except:
+                language = 'uz'
         
-        # Promptni tayyorlash
-        if context and context.strip():
+        # Language-specific system prompts
+        system_prompts = {
+            'uz': """Siz yordamchi AI assistentsiz. Foydalanuvchi savollariga aniq va foydali javoblar bering. 
+                     Agar kontekst berilgan bo'lsa, uni asosiy ma'lumot manbai sifatida ishlatib javob bering.
+                     Javoblaringiz qisqa, aniq va tushunarli bo'lsin.""",
+            'ru': """Вы AI-помощник. Отвечайте точно и полезно на вопросы пользователя. 
+                     Если предоставлен контекст, используйте его как основной источник информации.
+                     Ваши ответы должны быть краткими, точными и понятными.""",
+            'en': """You are an AI assistant. Provide accurate and helpful answers to user questions. 
+                     If context is provided, use it as the primary source of information.
+                     Keep your answers concise, accurate and understandable."""
+        }
+        
+        system_prompt = system_prompts.get(language, system_prompts['uz'])
+        
+        # Prepare the full prompt
+        if context:
             full_prompt = f"""
-Kontekst ma'lumotlari:
-{context}
+{system_prompt}
 
-Foydalanuvchi so'rovi:
-{prompt}
+Kontekst/Context/Контекст:
+{context[:3000]}  # Limit context to avoid token limits
 
-Yuqoridagi kontekst ma'lumotlari asosida foydalanuvchi so'roviga javob bering. Agar kontekstda kerakli ma'lumot bo'lmasa, umumiy bilimlaringizdan foydalaning. Javobni o'zbek tilida bering.
+Savol/Question/Вопрос: {prompt}
+
+Javob/{language} tilida bering:
 """
         else:
-            full_prompt = f"""
-Foydalanuvchi so'rovi:
-{prompt}
-
-Iltimos, ushbu so'rovga o'zbek tilida javob bering.
-"""
+            full_prompt = f"{system_prompt}\n\nSavol: {prompt}\n\nJavob:"
         
-        # AI javobini olish
+        # Get response from Gemini
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(full_prompt)
         
-        if response.text:
-            return response.text
-        else:
-            return "Kechirasiz, AI javob bera olmadi. Iltimos, so'rovingizni boshqacha ifoda eting."
-    
+        return response.text if response.text else "Kechirasiz, javob berish mumkin emas."
+        
     except Exception as e:
-        error_message = str(e)
-        if "API_KEY" in error_message.upper():
-            return "Kechirasiz, AI xizmati sozlanmagan. Administrator bilan bog'laning."
-        elif "QUOTA" in error_message.upper():
-            return "Kechirasiz, API limitiga yetdik. Keyinroq urinib ko'ring."
-        else:
-            return f"Kechirasiz, AI bilan bog'lanishda xatolik yuz berdi: {error_message}"
+        error_messages = {
+            'uz': "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
+            'ru': "Произошла ошибка. Попробуйте еще раз.", 
+            'en': "An error occurred. Please try again."
+        }
+        return error_messages.get(language, error_messages['uz'])

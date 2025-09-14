@@ -1,95 +1,125 @@
 import os
-import google.generativeai as genai
-from flask import Flask, render_template, session, redirect, url_for, flash, request
+from datetime import datetime, timedelta
+from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
+from flask_login import LoginManager, login_required, current_user, login_user, logout_user
+from flask_babel import Babel, _, get_locale
 from flask_wtf.csrf import CSRFProtect
-from flask_babel import Babel, _
+from flask_mail import Mail
+from werkzeug.security import generate_password_hash
+import google.generativeai as genai
 from dotenv import load_dotenv
-from routes.auth_routes import auth_bp
-from routes.kb_routes import kb_bp
-from routes.chat_routes import chat_bp
-from routes.telegram_routes import telegram_bp
-from routes.admin_routes import admin_bp
-from routes.contact_routes import contact_bp
+
+# Load environment variables
+load_dotenv()
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_1234567890!')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
+
+# Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
+# Initialize extensions
+from models import db
+db.init_app(app)
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'auth.login'
+csrf = CSRFProtect(app)
+mail = Mail(app)
+
+# Babel configuration
+app.config['LANGUAGES'] = {
+    'uz': 'O\'zbekcha',
+    'ru': 'Русский',
+    'en': 'English'
+}
+
+def get_locale():
+    if request.args.get('lang'):
+        session['language'] = request.args.get('lang')
+    return session.get('language', 'uz')
+
+babel = Babel(app, locale_selector=get_locale)
+
+# Google Gemini AI configuration
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if gemini_api_key:
+    genai.configure(api_key=gemini_api_key)
+
+# Import models after db initialization
 from models.user import User
 from models.knowledge_base import KnowledgeBase
 from models.telegram_bot import TelegramBot
 from models.contact_log import ContactLog
 
-load_dotenv()
+# User loader for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-app = Flask(__name__)
+# Import and register blueprints
+from routes.auth_routes import auth_bp
+from routes.admin_routes import admin_bp
+from routes.chat_routes import chat_bp
+from routes.kb_routes import kb_bp
+from routes.telegram_routes import telegram_bp
+from routes.contact_routes import contact_bp
 
-# Babel konfiguratsiyasi (xalqarolashtirish)
-app.config['LANGUAGES'] = {
-    'uz': 'O\'zbekcha',
-    'ru': 'Русский', 
-    'en': 'English'
-}
-
-def select_locale():
-    # URL parametridan til olish
-    if request.args.get('lang'):
-        session['language'] = request.args.get('lang')
-    return session.get('language', 'uz')
-
-babel = Babel(app, locale_selector=select_locale)
-
-@app.context_processor
-def inject_babel_get_locale():
-    from flask_babel import get_locale as babel_get_locale
-    return dict(get_locale=babel_get_locale)
-
-# SESSION_SECRET muhim bo'lib, har safar restart qilganda o'zgarib ketmasligi kerak
-session_secret = os.environ.get('SESSION_SECRET')
-if not session_secret:
-    raise ValueError("SESSION_SECRET environment variable is required for security!")
-
-app.config['SECRET_KEY'] = session_secret
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB maksimal fayl hajmi
-
-# CSRF himoyasini yoqish
-csrf = CSRFProtect(app)
-
-# Google Gemini API konfiguratsiyasi
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-if gemini_api_key:
-    genai.configure(api_key=gemini_api_key)
-
-# Blueprint ro'yxatdan o'tkazish
-app.register_blueprint(auth_bp, url_prefix='/')
-app.register_blueprint(kb_bp, url_prefix='/')
-app.register_blueprint(chat_bp, url_prefix='/')
-app.register_blueprint(telegram_bp, url_prefix='/')
-app.register_blueprint(admin_bp, url_prefix='/')
-app.register_blueprint(contact_bp, url_prefix='/')
-
-# Ma'lumotlar bazasi jadvallarini yaratish
-User.create_table()
-KnowledgeBase.create_table()
-TelegramBot.create_table()
-ContactLog.create_table()
+app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(admin_bp, url_prefix='/admin')
+app.register_blueprint(chat_bp, url_prefix='/chat')
+app.register_blueprint(kb_bp, url_prefix='/kb')
+app.register_blueprint(telegram_bp, url_prefix='/telegram')
+app.register_blueprint(contact_bp, url_prefix='/contact')
 
 @app.route('/')
 def home():
-    if 'user_id' in session:
-        return render_template('index.html', 
-                             user_name=session.get('user_name'),
-                             user_email=session.get('user_email'))
-    else:
-        return redirect(url_for('auth.login'))
+    return render_template('index.html')
 
-@app.route('/set_language/<language>')
-def set_language(language=None):
-    session['language'] = language
+@app.route('/set-language/<locale>')
+def set_language(locale=None):
+    session['language'] = locale
     return redirect(request.referrer or url_for('home'))
 
 @app.errorhandler(413)
 def too_large(e):
-    flash('Fayl hajmi 10MB dan oshmasin', 'error')
-    if 'user_id' in session:
-        return render_template('upload_kb.html'), 413
-    else:
-        return redirect(url_for('auth.login')), 413
+    flash(_('Fayl hajmi 10MB dan oshmasin'), 'error')
+    return redirect(request.referrer or url_for('kb.upload')), 413
+
+@app.context_processor
+def inject_conf_vars():
+    return {
+        'LANGUAGES': app.config['LANGUAGES'],
+        'CURRENT_LANGUAGE': session.get('language', 'uz')
+    }
+
+# Create tables and default admin user
+with app.app_context():
+    db.create_all()
+    
+    # Create default admin user
+    admin_exists = User.query.filter_by(email='admin@example.com').first()
+    if not admin_exists:
+        admin_user = User(
+            full_name='Admin',
+            phone='+998901234567',
+            email='admin@example.com',
+            password='admin123',
+            is_admin=True,
+            is_active=True
+        )
+        db.session.add(admin_user)
+        db.session.commit()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

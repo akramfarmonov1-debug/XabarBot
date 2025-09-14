@@ -1,187 +1,65 @@
-import psycopg2
-import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+import re
 
-load_dotenv()
+from models import db
 
-class User:
-    def __init__(self, id=None, full_name=None, phone=None, email=None, password_hash=None, trial_ends_at=None, is_active=True, is_admin=False):
-        self.id = id
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    trial_ends_at = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=3))
+    plan = db.Column(db.String(20), default='free')
+    plan_expires_at = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    knowledge_bases = db.relationship('KnowledgeBase', backref='user', lazy=True, cascade='all, delete-orphan')
+    telegram_bots = db.relationship('TelegramBot', backref='user', lazy=True, cascade='all, delete-orphan')
+    contact_logs = db.relationship('ContactLog', backref='user', lazy=True, cascade='all, delete-orphan')
+    
+    def __init__(self, full_name, phone, email, password=None, password_hash=None, **kwargs):
         self.full_name = full_name
         self.phone = phone
         self.email = email
-        self.password_hash = password_hash
-        self.trial_ends_at = trial_ends_at
-        self.is_active = is_active
-        self.is_admin = is_admin
+        if password:
+            self.set_password(password)
+        elif password_hash:
+            self.password_hash = password_hash
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
     
     @staticmethod
-    def get_db_connection():
-        return psycopg2.connect(os.environ.get('DATABASE_URL'))
+    def validate_phone(phone):
+        """Validate Uzbek phone number format: +998XXXXXXXXX"""
+        pattern = r'^\+998\d{9}$'
+        return re.match(pattern, phone) is not None
     
-    @staticmethod
-    def create_table():
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                full_name VARCHAR(255) NOT NULL,
-                phone VARCHAR(13) UNIQUE NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
-                trial_ends_at TIMESTAMP,
-                is_active BOOLEAN DEFAULT true,
-                is_admin BOOLEAN DEFAULT false,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # is_admin ustunini qo'shish (agar mavjud bo'lmasa)
-        try:
-            cursor.execute('SELECT is_admin FROM users LIMIT 1')
-        except psycopg2.errors.UndefinedColumn:
-            conn.rollback()  # Avvalgi xatolikni rollback qilish
-            cursor.execute('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT false')
-            conn.commit()
-        
-        # Default admin user yaratish
-        cursor.execute('SELECT COUNT(*) FROM users WHERE is_admin = true')
-        admin_count = cursor.fetchone()[0]
-        
-        if admin_count == 0:
-            from utils.security import generate_password_hash
-            admin_password_hash = generate_password_hash('admin123')
-            cursor.execute('''
-                INSERT INTO users (full_name, phone, email, password_hash, is_active, is_admin)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            ''', ('Admin', '+998901234567', 'admin@example.com', admin_password_hash, True, True))
-        conn.commit()
-        cursor.close()
-        conn.close()
+    def is_trial_active(self):
+        """Check if user's trial period is still active"""
+        return self.trial_ends_at and datetime.utcnow() < self.trial_ends_at
     
-    def save(self):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        if self.trial_ends_at is None:
-            self.trial_ends_at = datetime.utcnow() + timedelta(days=3)
-        
-        cursor.execute('''
-            INSERT INTO users (full_name, phone, email, password_hash, trial_ends_at, is_active)
-            VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
-        ''', (self.full_name, self.phone, self.email, self.password_hash, self.trial_ends_at, self.is_active))
-        
-        result = cursor.fetchone()
-        if result:
-            self.id = result[0]
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return self
+    def is_plan_active(self):
+        """Check if user's paid plan is still active"""
+        return self.plan_expires_at and datetime.utcnow() < self.plan_expires_at
     
-    @staticmethod
-    def find_by_email(email):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        if row:
-            return User(
-                id=row[0],
-                full_name=row[1], 
-                phone=row[2],
-                email=row[3],
-                password_hash=row[4],
-                trial_ends_at=row[5],
-                is_active=row[6],
-                is_admin=row[7] if len(row) > 7 else False
-            )
-        return None
+    def has_active_subscription(self):
+        """Check if user has any active subscription (trial or paid)"""
+        return self.is_trial_active() or self.is_plan_active()
     
-    @staticmethod
-    def find_by_phone(phone):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE phone = %s', (phone,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        if row:
-            return User(
-                id=row[0],
-                full_name=row[1], 
-                phone=row[2],
-                email=row[3],
-                password_hash=row[4],
-                trial_ends_at=row[5],
-                is_active=row[6],
-                is_admin=row[7] if len(row) > 7 else False
-            )
-        return None
-    
-    @staticmethod
-    def get_all_users():
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        
-        users = []
-        for row in rows:
-            users.append(User(
-                id=row[0],
-                full_name=row[1], 
-                phone=row[2],
-                email=row[3],
-                password_hash=row[4],
-                trial_ends_at=row[5],
-                is_active=row[6],
-                is_admin=row[7] if len(row) > 7 else False
-            ))
-        return users
-    
-    @staticmethod
-    def find_by_id(user_id):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE id = %s', (user_id,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        if row:
-            return User(
-                id=row[0],
-                full_name=row[1], 
-                phone=row[2],
-                email=row[3],
-                password_hash=row[4],
-                trial_ends_at=row[5],
-                is_active=row[6],
-                is_admin=row[7] if len(row) > 7 else False
-            )
-        return None
-    
-    def approve(self):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('UPDATE users SET is_active = true WHERE id = %s', (self.id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        self.is_active = True
-    
-    def delete_user(self):
-        conn = User.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM users WHERE id = %s', (self.id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
+    def __repr__(self):
+        return f'<User {self.email}>'
