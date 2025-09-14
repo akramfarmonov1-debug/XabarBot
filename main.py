@@ -16,10 +16,17 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_1234567890!')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(32)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+if not app.config['SQLALCHEMY_DATABASE_URI']:
+    raise RuntimeError("DATABASE_URL environment variable is required")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
+
+# Security settings for production
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -86,6 +93,18 @@ app.register_blueprint(contact_bp, url_prefix='/contact')
 def home():
     return render_template('index.html')
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for autoscale deployment"""
+    try:
+        # Check database connection
+        from sqlalchemy import text
+        with db.engine.connect() as connection:
+            connection.execute(text('SELECT 1'))
+        return {'status': 'healthy', 'database': 'connected'}, 200
+    except Exception as e:
+        return {'status': 'unhealthy', 'error': str(e)}, 503
+
 @app.route('/set-language/<locale>')
 def set_language(locale=None):
     session['language'] = locale
@@ -107,14 +126,15 @@ def inject_conf_vars():
 with app.app_context():
     db.create_all()
     
-    # Create default admin user
+    # Create default admin user with secure password
     admin_exists = User.query.filter_by(email='admin@example.com').first()
     if not admin_exists:
+        admin_password = os.environ.get('ADMIN_PASSWORD', generate_password_hash('admin123'))
         admin_user = User(
             full_name='Admin',
             phone='+998901234567',
             email='admin@example.com',
-            password='admin123',
+            password=admin_password if admin_password.startswith('$') else generate_password_hash(admin_password),
             is_admin=True,
             is_active=True
         )
