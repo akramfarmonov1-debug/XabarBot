@@ -22,7 +22,7 @@ def register():
         
         # Phone number validation
         if not User.validate_phone(phone):
-            flash(_('Telefon raqami +998 bilan boshlanishi va 13 ta raqamdan iborat bo\'lishi kerak'), 'error')
+            flash(_('Telefon raqami noto\'g\'ri formatda. Misol: +998901234567 (13 ta raqam)'), 'error')
             return render_template('register.html')
         
         # Check if user already exists

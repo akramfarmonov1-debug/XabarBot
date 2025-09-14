@@ -45,9 +45,18 @@ class User(UserMixin, db.Model):
     
     @staticmethod
     def validate_phone(phone):
-        """Validate Uzbek phone number format: +998XXXXXXXXX"""
+        """Validate Uzbek phone number format: +998XXXXXXXXX (9 digits after +998)"""
+        # Remove spaces and normalize
+        phone = phone.replace(' ', '').replace('-', '')
+        
+        # Check if it matches O'zbekiston format: +998 + 9 digits
         pattern = r'^\+998\d{9}$'
-        return re.match(pattern, phone) is not None
+        
+        # Also accept formats like: 998XXXXXXXXX, +998 XX XXX XX XX
+        if not phone.startswith('+998') and phone.startswith('998') and len(phone) == 12:
+            phone = '+' + phone
+        
+        return re.match(pattern, phone) is not None and len(phone) == 13
     
     def is_trial_active(self):
         """Check if user's trial period is still active"""
