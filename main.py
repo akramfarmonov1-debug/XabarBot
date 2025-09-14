@@ -8,9 +8,11 @@ from routes.kb_routes import kb_bp
 from routes.chat_routes import chat_bp
 from routes.telegram_routes import telegram_bp
 from routes.admin_routes import admin_bp
+from routes.contact_routes import contact_bp
 from models.user import User
 from models.knowledge_base import KnowledgeBase
 from models.telegram_bot import TelegramBot
+from models.contact_log import ContactLog
 
 load_dotenv()
 
@@ -38,11 +40,13 @@ app.register_blueprint(kb_bp, url_prefix='/')
 app.register_blueprint(chat_bp, url_prefix='/')
 app.register_blueprint(telegram_bp, url_prefix='/')
 app.register_blueprint(admin_bp, url_prefix='/')
+app.register_blueprint(contact_bp, url_prefix='/')
 
 # Ma'lumotlar bazasi jadvallarini yaratish
 User.create_table()
 KnowledgeBase.create_table()
 TelegramBot.create_table()
+ContactLog.create_table()
 
 @app.route('/')
 def index():

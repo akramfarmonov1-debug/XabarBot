@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XabarBot.UZ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/widget.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -79,5 +80,7 @@
             </div>
         {% endif %}
     </div>
+    
+    <script src="{{ url_for('static', filename='js/chat-widget.js') }}"></script>
 </body>
 </html>

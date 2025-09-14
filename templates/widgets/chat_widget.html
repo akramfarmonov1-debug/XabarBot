@@ -1,0 +1,15 @@
+<!-- Chat Widget Включить в основные шаблоны -->
+<!-- Bu faylni asosiy template larga qo'shish kerak -->
+
+<!-- CSS ni <head> qismiga qo'shing -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/widget.css') }}">
+
+<!-- JavaScript ni </body> dan oldin qo'shing -->
+<script src="{{ url_for('static', filename='js/chat-widget.js') }}"></script>
+
+<!-- 
+Bu widgetni ishlatish uchun:
+1. Asosiy template fayllaringizda (base.html, index.html) yuqoridagi linkларni qo'shing
+2. Widget avtomatik ravishda sahifaning pastki o'ng burchagida paydo bo'ladi
+3. Foydalanuvchi "💡" tugmasini bosganida modal ochiladi
+-->

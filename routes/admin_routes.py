@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from models.user import User
+from models.contact_log import ContactLog
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -50,3 +51,11 @@ def delete_user(user_id):
     else:
         flash('Foydalanuvchi topilmadi', 'error')
     return redirect(url_for('admin.dashboard'))
+
+@admin_bp.route('/admin/contacts')
+@admin_required
+def contacts():
+    """Admin kontaktlar sahifasi - barcha xabarlar"""
+    contact_logs = ContactLog.get_all_logs()
+    return render_template('admin/contacts.html', contact_logs=contact_logs)
+
