@@ -45,18 +45,35 @@ class User(UserMixin, db.Model):
     
     @staticmethod
     def validate_phone(phone):
-        """Validate Uzbek phone number format: +998XXXXXXXXX (9 digits after +998)"""
-        # Remove spaces and normalize
-        phone = phone.replace(' ', '').replace('-', '')
+        """Validate phone number - accept various formats"""
+        if not phone:
+            return False
+            
+        # Remove spaces, dashes, and other non-digit characters except +
+        phone = re.sub(r'[^\d+]', '', phone)
         
-        # Check if it matches O'zbekiston format: +998 + 9 digits
-        pattern = r'^\+998\d{9}$'
+        # Must have at least 9 digits (minimum for valid phone)
+        digits_only = re.sub(r'[^\d]', '', phone)
+        if len(digits_only) < 9:
+            return False
+            
+        # Accept various formats:
+        # +998XXXXXXXXX (Uzbek format)
+        # 998XXXXXXXXX (without +)
+        # Any international format +XXXXXXXXXXX
+        # Local format XXXXXXXXX (at least 9 digits)
         
-        # Also accept formats like: 998XXXXXXXXX, +998 XX XXX XX XX
-        if not phone.startswith('+998') and phone.startswith('998') and len(phone) == 12:
-            phone = '+' + phone
+        # If starts with +998 or 998, ensure it has correct length for Uzbek
+        if phone.startswith('+998'):
+            return len(digits_only) >= 12  # 998 + 9 digits
+        elif phone.startswith('998') and not phone.startswith('+'):
+            return len(digits_only) >= 12  # 998 + 9 digits
+        elif phone.startswith('+'):
+            return len(digits_only) >= 10  # Any international format
+        else:
+            return len(digits_only) >= 9   # Local format
         
-        return re.match(pattern, phone) is not None and len(phone) == 13
+        return True
     
     def is_trial_active(self):
         """Check if user's trial period is still active"""

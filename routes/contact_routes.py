@@ -72,12 +72,12 @@ def phone():
         if not phone_number:
             return jsonify({'success': False, 'error': 'Telefon raqami kiritilmagan'}), 400
         
-        # Telefon raqami validatsiyasi
-        phone_pattern = r'^\+998\d{9}$'
-        if not re.match(phone_pattern, phone_number):
+        # Telefon raqami validatsiyasi - User.validate_phone dan foydalanish
+        from models.user import User
+        if not User.validate_phone(phone_number):
             return jsonify({
                 'success': False, 
-                'error': 'Telefon raqami +998 bilan boshlanishi va 13 ta raqamdan iborat bo\'lishi kerak'
+                'error': 'To\'g\'ri telefon raqam kiriting'
             }), 400
         
         # Qo'ng'iroq so'rovini saqlash
