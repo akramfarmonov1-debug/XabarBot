@@ -1,8 +1,10 @@
 import os
+import google.generativeai as genai
 from flask import Flask, render_template, session, redirect, url_for, flash
 from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.kb_routes import kb_bp
+from routes.chat_routes import chat_bp
 from models.user import User
 from models.knowledge_base import KnowledgeBase
 
@@ -12,9 +14,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'your_super_secret_key_1234567890!')
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB maksimal fayl hajmi
 
+# Google Gemini API konfiguratsiyasi
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if gemini_api_key:
+    genai.configure(api_key=gemini_api_key)
+
 # Blueprint ro'yxatdan o'tkazish
 app.register_blueprint(auth_bp, url_prefix='/')
 app.register_blueprint(kb_bp, url_prefix='/')
+app.register_blueprint(chat_bp, url_prefix='/')
 
 # Ma'lumotlar bazasi jadvallarini yaratish
 User.create_table()
